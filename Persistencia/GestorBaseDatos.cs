@@ -62,7 +62,7 @@ namespace LittleERP.Persistencia
             {
                 connection.Open();
 
-                string consulta = "INSERT INTO Gasto VALUES (@cantidad, @descripcion, @fecha)";
+                string consulta = "INSERT INTO Gasto (cantidad, descripcion, fecha) VALUES (@cantidad, @descripcion, @fecha)";
                 using (SqliteCommand comando = new SqliteCommand(consulta, connection))
                 {
                     comando.Parameters.AddWithValue("@cantidad", gasto.cantidad);
