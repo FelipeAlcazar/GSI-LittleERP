@@ -1,24 +1,23 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.Data.Sqlite;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
+using SQLitePCL;
 
 namespace LittleERP.Persistencia
 {
     public class GestorBaseDatos
     {
-        private MySqlConnection connection;
-        string databaseFilePath = @"C:\path\to\your\databasefile.mysql";
-        string usuario = "root";
-        string contraseña = "pass";
+        private SqliteConnection connection;
+        string databaseFileName = "littleerp.db";
 
-        public GestorBaseDatos(string servidor, string usuario, string contraseña, string baseDeDatos)
+        public GestorBaseDatos()
         {
-            string cadenaConexion = $"server=localhost;user={usuario};password={contraseña};database={databaseFilePath}";
-            connection = new MySqlConnection(cadenaConexion);
+            // Initialize SQLite provider
+            Batteries.Init();
+
+            string connectionString = $"Data Source={databaseFileName}";
+            connection = new SqliteConnection(connectionString);
         }
 
         public ObservableCollection<Gasto> ObtenerGastos()
@@ -29,20 +28,21 @@ namespace LittleERP.Persistencia
             {
                 connection.Open();
 
-                string consulta = "SELECT * FROM gastos";
-                MySqlCommand comando = new MySqlCommand(consulta, connection);
-
-                using (MySqlDataReader lector = comando.ExecuteReader())
+                string consulta = "SELECT * FROM Gasto";
+                using (SqliteCommand comando = new SqliteCommand(consulta, connection))
                 {
-                    while (lector.Read())
+                    using (SqliteDataReader lector = comando.ExecuteReader())
                     {
-                        gastos.Add(new Gasto
+                        while (lector.Read())
                         {
-                            id = lector.GetInt32(0),
-                            cantidad = lector.GetDouble(1),
-                            descripcion = lector.GetString(2),
-                            fecha = lector.GetDateTime(3)
-                        });
+                            gastos.Add(new Gasto
+                            {
+                                id = lector.GetInt32(0),
+                                cantidad = lector.GetDouble(1),
+                                descripcion = lector.GetString(2),
+                                fecha = DateTime.Parse(lector.GetString(3))
+                            });
+                        }
                     }
                 }
 
@@ -50,31 +50,33 @@ namespace LittleERP.Persistencia
             }
             catch (Exception ex)
             {
-                // Manejar excepciones
+                Debug.WriteLine($"Error: {ex.Message}");
             }
 
             return gastos;
         }
 
-        public void AgregarGasto(double monto, string descripcion, DateTime fecha)
+        public void AgregarGasto(Gasto gasto)
         {
             try
             {
                 connection.Open();
 
-                string consulta = "INSERT INTO gastos (monto, descripcion, fecha) VALUES (@monto, @descripcion, @fecha)";
-                MySqlCommand comando = new MySqlCommand(consulta, connection);
-                comando.Parameters.AddWithValue("@monto", monto);
-                comando.Parameters.AddWithValue("@descripcion", descripcion);
-                comando.Parameters.AddWithValue("@fecha", fecha);
+                string consulta = "INSERT INTO Gasto VALUES (@cantidad, @descripcion, @fecha)";
+                using (SqliteCommand comando = new SqliteCommand(consulta, connection))
+                {
+                    comando.Parameters.AddWithValue("@cantidad", gasto.cantidad);
+                    comando.Parameters.AddWithValue("@descripcion", gasto.descripcion);
+                    comando.Parameters.AddWithValue("@fecha", gasto.fecha.ToString("dd-MM-yyyy"));
 
-                comando.ExecuteNonQuery();
+                    comando.ExecuteNonQuery();
+                }
 
                 connection.Close();
             }
             catch (Exception ex)
             {
-                // Manejar excepciones
+                Debug.WriteLine($"Error: {ex.Message}");
             }
         }
     }

@@ -1,5 +1,7 @@
-﻿using System;
+﻿using LittleERP.Persistencia;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -22,9 +24,33 @@ namespace LittleERP
     /// </summary>
     public sealed partial class HomePage : Page
     {
+        private GestorBaseDatos gestorBaseDatos;
         public HomePage()
         {
             this.InitializeComponent();
+            gestorBaseDatos = new GestorBaseDatos();
+
+            // Insert a sample Gasto
+            double monto = 100.00; // Example amount
+            string descripcion = "Ejemplo de gasto"; // Example description
+            DateTime fecha = DateTime.Now; // Current date and time
+            // Create a Gasto object
+            Gasto gasto = new Gasto
+            {
+                cantidad = monto,
+                descripcion = descripcion,
+                fecha = fecha
+            };
+
+            // Add the Gasto to the database
+            gestorBaseDatos.AgregarGasto(gasto);
+            LoadGastos();
+        }
+
+        private void LoadGastos()
+        {
+            ObservableCollection<Gasto> gastos = gestorBaseDatos.ObtenerGastos();
+            gvGastos.ItemsSource = gastos;
         }
 
         private void GenerarInformePDF_Click(object sender, RoutedEventArgs e)

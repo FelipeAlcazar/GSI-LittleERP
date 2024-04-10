@@ -39,25 +39,70 @@
                 <TextBlock Text="Gráficos aquí..." HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </PivotItem>
 
-            <!-- Pestaña de Datos en Lista -->
+            <!-- Pestaña de Ingresos -->
             <PivotItem>
                 <PivotItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <SymbolIcon Symbol="AllApps" 
+                        <SymbolIcon Symbol="Add" 
                                     HorizontalAlignment="Center" 
                                     VerticalAlignment="Center"
                                     Foreground="Black"/>
                         <AppBarSeparator/>
-                        <TextBlock Text="Datos" 
+                        <TextBlock Text="Ingresos" 
                                HorizontalAlignment="Center" 
                                VerticalAlignment="Center"
                                Foreground="Black"/>
                     </StackPanel>
                 </PivotItem.Header>
-                <!-- Aquí puedes colocar el contenido para mostrar los datos en una lista -->
-                <!-- Por ejemplo, podrías utilizar un control ListView aquí -->
-                <TextBlock Text="Datos en lista aquí..." HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <!-- GridView for displaying ingresos data -->
+                <GridView
+                    HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          Margin="10"/>
             </PivotItem>
+
+            <!-- Pestaña de Gastos -->
+            <PivotItem>
+                <PivotItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <SymbolIcon Symbol="Remove" 
+                                    HorizontalAlignment="Center" 
+                                    VerticalAlignment="Center"
+                                    Foreground="Black"/>
+                        <AppBarSeparator/>
+                        <TextBlock Text="Gastos" 
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Center"
+                               Foreground="Black"/>
+                    </StackPanel>
+                </PivotItem.Header>
+                <!-- GridView for displaying gastos data -->
+                <GridView x:Name="gvGastos"
+                    HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          Margin="10"/>
+            </PivotItem>
+            <!-- Pestaña de Ajustes -->
+<PivotItem HorizontalAlignment="Stretch"
+           VerticalAlignment="Stretch"
+           HorizontalContentAlignment="Stretch">
+    <PivotItem.Header>
+        <StackPanel Orientation="Horizontal">
+            <SymbolIcon Symbol="Setting" 
+                        HorizontalAlignment="Center" 
+                        VerticalAlignment="Center"
+                        Foreground="Black"/>
+            <AppBarSeparator/>
+            <TextBlock Text="Ajustes" 
+                       HorizontalAlignment="Center" 
+                       VerticalAlignment="Center"
+                       Foreground="Black"/>
+        </StackPanel>
+    </PivotItem.Header>
+    <!-- Content for ajustes -->
+    <TextBlock Text="Ajustes aquí..." HorizontalAlignment="Center" VerticalAlignment="Center"/>
+</PivotItem>
+
         </Pivot>
 
         <!-- Botón para generar informe PDF -->
