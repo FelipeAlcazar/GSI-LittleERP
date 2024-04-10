@@ -8,7 +8,7 @@
     mc:Ignorable="d">
 
     <Grid Background="White"> <!-- Set maximum width and height for the grid -->
-        <Image Source="Assets/logo.png" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,50,0,0" />
+        <Image Source="/Assets/logo.png" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,50,0,0" />
 
         <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,50">
             <Button Content="Login" Margin="0,20,0,0" Style="{StaticResource Windows11ButtonStyle}" Click="LoginButton_Click"/>
