@@ -1,0 +1,71 @@
+﻿<Page
+    x:Class="LittleERP.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="White" 
+          HorizontalAlignment="Stretch" 
+          VerticalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Image Grid.Row="0" Source="/Assets/logo_horizontal.png" Width="300" HorizontalAlignment="Left" Margin="20,20,0,0"/>
+
+        <!-- Contenido de las pestañas -->
+        <Pivot Grid.Row="1">
+            <!-- Pestaña de Gráficos -->
+            <PivotItem>
+                <PivotItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <SymbolIcon Symbol="ViewAll" 
+                                    HorizontalAlignment="Center" 
+                                    VerticalAlignment="Center"
+                                    Foreground="Black"/>
+                        <AppBarSeparator/>
+                        <TextBlock Text="Gráficos" 
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Center"
+                               Foreground="Black"/>
+                    </StackPanel>
+                </PivotItem.Header>
+                <!-- Aquí puedes colocar el contenido para mostrar los gráficos -->
+                <!-- Por ejemplo, podrías utilizar un control de gráfico aquí -->
+                <TextBlock Text="Gráficos aquí..." HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </PivotItem>
+
+            <!-- Pestaña de Datos en Lista -->
+            <PivotItem>
+                <PivotItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <SymbolIcon Symbol="AllApps" 
+                                    HorizontalAlignment="Center" 
+                                    VerticalAlignment="Center"
+                                    Foreground="Black"/>
+                        <AppBarSeparator/>
+                        <TextBlock Text="Datos" 
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Center"
+                               Foreground="Black"/>
+                    </StackPanel>
+                </PivotItem.Header>
+                <!-- Aquí puedes colocar el contenido para mostrar los datos en una lista -->
+                <!-- Por ejemplo, podrías utilizar un control ListView aquí -->
+                <TextBlock Text="Datos en lista aquí..." HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </PivotItem>
+        </Pivot>
+
+        <!-- Botón para generar informe PDF -->
+        <Button Grid.Row="2"
+                Content="Generar Informe PDF" 
+                HorizontalAlignment="Right"
+                Margin="0,0,50,20" 
+                Click="GenerarInformePDF_Click"
+                Style="{StaticResource Windows11ButtonStyle}"/>
+    </Grid>
+</Page>

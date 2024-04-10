@@ -38,7 +38,8 @@ namespace LittleERP
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-
+            //Iniciar HomePage
+            this.Frame.Navigate(typeof(HomePage));
         }
 
         private void RegisterButton_Click(object sender, RoutedEventArgs e)
