@@ -1,5 +1,4 @@
-﻿using MySql.Data.MySqlClient;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -22,18 +21,10 @@ namespace LittleERP
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        private MySqlConnection connection;
-        private ObservableCollection<Gasto> expenses;
 
         public MainPage()
         {
             this.InitializeComponent();
-            InitializeDatabase();
-        }
-
-
-        private void InitializeDatabase()
-        {
         }
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
