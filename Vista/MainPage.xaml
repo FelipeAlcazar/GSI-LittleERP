@@ -7,10 +7,33 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Background="White"> <!-- Set maximum width and height for the grid -->
-        <Image Source="/Assets/logo.png" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,50,0,0" />
+    <Grid Background="White">
+        <Image x:Name="imgLogo" Source="/Assets/logo.png" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,50,0,0" />
 
-        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,50">
+        <!-- Login Fields -->
+        <Grid x:Name="LoginGrid" Visibility="Collapsed">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBox x:Name="txtEmail" PlaceholderText="Email" Margin="0,0,0,10" Width="200"/>
+                <PasswordBox x:Name="txtPassword" PlaceholderText="Password" Margin="0,0,0,10" Width="200"/>
+                <Button x:Name="btnLoginInside" Content="Login" Margin="0,20,0,0" Style="{StaticResource Windows11ButtonStyle}" Click="Login_Click"/>
+                <Button Content="Go Back" Margin="0,20,0,0" Style="{StaticResource Windows11ButtonStyle}" Click="GoBack_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Registration Fields -->
+        <Grid x:Name="RegisterGrid" Visibility="Collapsed">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBox x:Name="txtName" PlaceholderText="Nombre" Margin="0,0,0,10" Width="200"/>
+                <TextBox x:Name="txtApellido" PlaceholderText="Apellido" Margin="0,0,0,10" Width="200"/>
+                <TextBox x:Name="txtCorreo" PlaceholderText="Correo Electrónico" Margin="0,0,0,10" Width="200"/>
+                <PasswordBox x:Name="txtContra" PlaceholderText="Contraseña" Margin="0,0,0,10" Width="200"/>
+                <Button x:Name="btnRegisterInside" Content="Register" Margin="0,20,0,0" Style="{StaticResource Windows11ButtonStyle}" Click="Register_Click"/>
+                <Button Content="Go Back" Margin="0,20,0,0" Style="{StaticResource Windows11ButtonStyle}" Click="GoBack_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Original Buttons -->
+        <StackPanel x:Name="OriginalButtonsPanel" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,50">
             <Button Content="Login" Margin="0,20,0,0" Style="{StaticResource Windows11ButtonStyle}" Click="LoginButton_Click"/>
             <Button Content="Register" Margin="0,20,0,0" Style="{StaticResource Windows11ButtonStyle}" Click="RegisterButton_Click"/>
         </StackPanel>

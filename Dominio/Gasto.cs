@@ -12,6 +12,7 @@ namespace LittleERP
         public double cantidad { get; set; }
         public string descripcion { get; set; }
         public DateTime fecha { get; set; }
+        public int idUser { get; set; }
 
         public Gasto()
         {

@@ -26,6 +26,7 @@ namespace LittleERP
     public sealed partial class HomePage : Page
     {
         private GestorBaseDatos gestorBaseDatos;
+        private int userId;
 
         public HomePage()
         {
@@ -34,9 +35,26 @@ namespace LittleERP
             LoadGastos();
         }
 
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            if (e.Parameter != null && e.Parameter is int)
+            {
+                userId = (int)e.Parameter;
+                Debug.WriteLine($"User ID: {userId}");
+                gestorBaseDatos = new GestorBaseDatos();
+                LoadGastos();
+            }
+            else
+            {
+                // Handle invalid parameter
+            }
+        }
+
         private void LoadGastos()
         {
-            ObservableCollection<Gasto> gastos = gestorBaseDatos.GetGastosFromDatabase();
+            ObservableCollection<Gasto> gastos = gestorBaseDatos.GetGastosFromDatabase(userId);
             gvGastos.ItemsSource = gastos;
         }
 
