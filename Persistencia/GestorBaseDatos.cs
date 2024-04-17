@@ -45,9 +45,21 @@ namespace LittleERP.Persistencia
             {
                 connection.Open();
 
+                // Create Usuario table
+                string createUsuarioTable = @"
+            CREATE TABLE IF NOT EXISTS Usuario (
+                Id INTEGER PRIMARY KEY,
+                Nombre TEXT,
+                Apellido TEXT,
+                CorreoElectronico TEXT,
+                Contraseña TEXT,
+                EsAdmin INTEGER
+            );";
+                ExecuteNonQuery(createUsuarioTable);
+
                 // Create Factura table
                 string createFacturaTable = @"
-            CREATE TABLE Factura (
+            CREATE TABLE IF NOT EXISTS Factura (
                 Id INTEGER PRIMARY KEY,
                 FechaEmision TEXT,
                 Total REAL,
@@ -58,7 +70,7 @@ namespace LittleERP.Persistencia
 
                 // Create Gasto table
                 string createGastoTable = @"
-            CREATE TABLE Gasto (
+            CREATE TABLE IF NOT EXISTS Gasto (
                 id INTEGER PRIMARY KEY,
                 cantidad REAL,
                 descripcion TEXT,
@@ -70,7 +82,7 @@ namespace LittleERP.Persistencia
 
                 // Create Ingreso table
                 string createIngresoTable = @"
-            CREATE TABLE Ingreso (
+            CREATE TABLE IF NOT EXISTS Ingreso (
                 id INTEGER PRIMARY KEY,
                 cantidad REAL,
                 descripcion TEXT,
@@ -80,17 +92,23 @@ namespace LittleERP.Persistencia
             );";
                 ExecuteNonQuery(createIngresoTable);
 
-                // Create Usuario table
-                string createUsuarioTable = @"
-            CREATE TABLE Usuario (
-                Id INTEGER PRIMARY KEY,
-                Nombre TEXT,
-                Apellido TEXT,
-                CorreoElectronico TEXT,
-                Contraseña TEXT,
-                EsAdmin INTEGER
-            );";
-                ExecuteNonQuery(createUsuarioTable);
+                // Admin User 1
+                string insertAdminUser1 = @"
+            INSERT INTO Usuario (Nombre, Apellido, CorreoElectronico, Contraseña, EsAdmin)
+            VALUES ('Admin1', 'Lastname1', 'admin1@example.com', 'admin', 1);";
+                ExecuteNonQuery(insertAdminUser1);
+
+                // Admin User 2
+                string insertAdminUser2 = @"
+            INSERT INTO Usuario (Nombre, Apellido, CorreoElectronico, Contraseña, EsAdmin)
+            VALUES ('Admin2', 'Lastname2', 'admin2@example.com', 'admin', 1);";
+                ExecuteNonQuery(insertAdminUser2);
+
+                // Non-admin User
+                string insertNonAdminUser = @"
+            INSERT INTO Usuario (Nombre, Apellido, CorreoElectronico, Contraseña, EsAdmin)
+            VALUES ('User', 'Lastname', 'user@example.com', 'admin', 0);";
+                ExecuteNonQuery(insertNonAdminUser);
 
                 connection.Close();
             }
@@ -99,6 +117,7 @@ namespace LittleERP.Persistencia
                 Debug.WriteLine($"Error creating tables: {ex.Message}");
             }
         }
+
 
 
 
@@ -151,20 +170,19 @@ namespace LittleERP.Persistencia
             return gastos;
         }
 
-
-
         public void AgregarGasto(Gasto gasto)
         {
             try
             {
                 connection.Open();
 
-                string consulta = "INSERT INTO Gasto (cantidad, descripcion, fecha) VALUES (@cantidad, @descripcion, @fecha)";
+                string consulta = "INSERT INTO Gasto (cantidad, descripcion, fecha, UsuarioId) VALUES (@cantidad, @descripcion, @fecha, @usuarioId)";
                 using (SQLiteCommand comando = new SQLiteCommand(consulta, connection))
                 {
                     comando.Parameters.AddWithValue("@cantidad", gasto.cantidad);
                     comando.Parameters.AddWithValue("@descripcion", gasto.descripcion);
-                    comando.Parameters.AddWithValue("@fecha", gasto.fecha.ToString("dd-MM-yyyy"));
+                    comando.Parameters.AddWithValue("@fecha", gasto.fecha.ToString("dd/MM/yyyy"));
+                    comando.Parameters.AddWithValue("@usuarioId", gasto.idUser);
 
                     comando.ExecuteNonQuery();
                 }
@@ -176,6 +194,28 @@ namespace LittleERP.Persistencia
                 Debug.WriteLine($"Error: {ex.Message}");
             }
         }
+
+        public void BorrarGasto(int gastoId)
+        {
+            try
+            {
+                connection.Open();
+
+                string consulta = "DELETE FROM Gasto WHERE id = @gastoId";
+                using (SQLiteCommand comando = new SQLiteCommand(consulta, connection))
+                {
+                    comando.Parameters.AddWithValue("@gastoId", gastoId);
+                    comando.ExecuteNonQuery();
+                }
+
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error: {ex.Message}");
+            }
+        }
+
         public bool VerifyLogin(string email, string password)
         {
             bool isAuthenticated = false;
@@ -259,5 +299,93 @@ namespace LittleERP.Persistencia
                 Debug.WriteLine($"Error registering user: {ex.Message}");
             }
         }
+
+        public ObservableCollection<Ingreso> GetIngresosFromDatabase(int userId)
+        {
+            ObservableCollection<Ingreso> ingresos = new ObservableCollection<Ingreso>();
+
+            try
+            {
+                Debug.WriteLine("Opening connection...");
+                connection.Open();
+
+                string consulta = "SELECT * FROM Ingreso WHERE UsuarioId = @UserId";
+                Debug.WriteLine($"Executing query: {consulta}");
+                using (SQLiteCommand comando = new SQLiteCommand(consulta, connection))
+                {
+                    comando.Parameters.AddWithValue("@UserId", userId);
+
+                    using (SQLiteDataReader lector = comando.ExecuteReader())
+                    {
+                        while (lector.Read())
+                        {
+                            ingresos.Add(new Ingreso
+                            {
+                                id = Convert.ToInt32(lector["id"]),
+                                cantidad = Convert.ToDouble(lector["cantidad"]),
+                                descripcion = Convert.ToString(lector["descripcion"]),
+                                fecha = DateTime.Parse(lector["fecha"].ToString())
+                            });
+                        }
+                    }
+                }
+
+                Debug.WriteLine("Closing connection...");
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error: {ex.Message}");
+            }
+
+            return ingresos;
+        }
+
+        public void AgregarIngreso(Ingreso ingreso)
+        {
+            try
+            {
+                connection.Open();
+
+                string consulta = "INSERT INTO Ingreso (cantidad, descripcion, fecha, UsuarioId) VALUES (@cantidad, @descripcion, @fecha, @usuarioId)";
+                using (SQLiteCommand comando = new SQLiteCommand(consulta, connection))
+                {
+                    comando.Parameters.AddWithValue("@cantidad", ingreso.cantidad);
+                    comando.Parameters.AddWithValue("@descripcion", ingreso.descripcion);
+                    comando.Parameters.AddWithValue("@fecha", ingreso.fecha.ToString("dd/MM/yyyy"));
+                    comando.Parameters.AddWithValue("@usuarioId", ingreso.idUser);
+
+                    comando.ExecuteNonQuery();
+                }
+
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error: {ex.Message}");
+            }
+        }
+
+        public void BorrarIngreso(int ingresoId)
+        {
+            try
+            {
+                connection.Open();
+
+                string consulta = "DELETE FROM Ingreso WHERE id = @ingresoId";
+                using (SQLiteCommand comando = new SQLiteCommand(consulta, connection))
+                {
+                    comando.Parameters.AddWithValue("@ingresoId", ingresoId);
+                    comando.ExecuteNonQuery();
+                }
+
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error: {ex.Message}");
+            }
+        }
+
     }
 }

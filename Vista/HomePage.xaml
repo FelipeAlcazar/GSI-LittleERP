@@ -41,26 +41,65 @@
             </PivotItem>
 
             <!-- Pestaña de Ingresos -->
+            <!-- Pestaña de Ingresos -->
             <PivotItem>
                 <PivotItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <SymbolIcon Symbol="Add" 
-                                    HorizontalAlignment="Center" 
-                                    VerticalAlignment="Center"
-                                    Foreground="Black"/>
+                        HorizontalAlignment="Center" 
+                        VerticalAlignment="Center"
+                        Foreground="Black"/>
                         <AppBarSeparator/>
                         <TextBlock Text="Ingresos" 
-                               HorizontalAlignment="Center" 
-                               VerticalAlignment="Center"
-                               Foreground="Black"/>
+                       HorizontalAlignment="Center" 
+                       VerticalAlignment="Center"
+                       Foreground="Black"/>
                     </StackPanel>
                 </PivotItem.Header>
-                <!-- GridView for displaying ingresos data -->
-                <GridView
-                    HorizontalAlignment="Stretch"
-                          VerticalAlignment="Stretch"
-                          Margin="10"/>
+                <!-- Content for the PivotItem -->
+                <StackPanel>
+                    <!-- ScrollViewer for the DataGrid -->
+                    <ScrollViewer Height="600" VerticalScrollBarVisibility="Auto">
+                        <!-- DataGrid for displaying ingresos data -->
+                        <Custom:DataGrid x:Name="gvIngresos"
+                  Foreground="Black"
+                  Background="#FFE4E4E4"
+                  BorderBrush="Black"
+                  AutoGenerateColumns="False"
+                  ItemsSource="{Binding ObtenerIngresos}"
+                  IsReadOnly="True"
+                  FocusVisualSecondaryBrush="#CC000000">
+                            <Custom:DataGrid.Columns>
+                                <Custom:DataGridTextColumn Header="ID" Binding="{Binding id}" Width="Auto"/>
+                                <Custom:DataGridTextColumn Header="Descripción" Binding="{Binding descripcion}" Width="*"/>
+                                <Custom:DataGridTextColumn Header="Cantidad" Binding="{Binding cantidad}" Width="*"/>
+                                <Custom:DataGridTextColumn Header="Fecha" Binding="{Binding fecha}" Width="*"/>
+                            </Custom:DataGrid.Columns>
+                        </Custom:DataGrid>
+                    </ScrollViewer>
+                    <!-- Buttons -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="10,10,10,20">
+                        <Button x:Name="bntAddIngreso" Content="+" 
+                    Style="{StaticResource Windows11ButtonStyle}"
+                    Margin="0,0,10,0" FontSize="20" MinWidth="30" Width="50"
+                    Click="bntAddIngreso_Click"/>
+
+                        <Button x:Name="btnRemoveIngreso" Content="-"
+                    Style="{StaticResource Windows11ButtonStyle}"
+                    Margin="0,0,100,0" FontSize="20" MinWidth="30" Width="50"
+                    Click="btnRemoveIngreso_Click"/>
+                        <Button x:Name="btnInformeIngreso" Content="Generar Informe PDF" 
+                    Click="GenerarInformePDFIngreso_Click"
+                    Style="{StaticResource Windows11ButtonStyle}"/>
+                    </StackPanel>
+                    <TextBox x:Name="txtCantidadIngreso" PlaceholderText="Cantidad" Margin="5" Visibility="Collapsed"/>
+                    <TextBox x:Name="txtDescripcionIngreso" PlaceholderText="Descripción" Margin="5" Visibility="Collapsed"/>
+                    <Button x:Name="btnGuardarIngreso" Content="Guardar" Click="GuardarIngreso_Click" Margin="5"
+                Style="{StaticResource Windows11ButtonStyle}" Visibility="Collapsed"/>
+                </StackPanel>
             </PivotItem>
+
+
 
             <!-- Pestaña de Gastos -->
             <PivotItem>
@@ -80,7 +119,7 @@
                 <!-- Content for the PivotItem -->
                 <StackPanel>
                     <!-- ScrollViewer for the DataGrid -->
-                    <ScrollViewer Height="400" VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer Height="600" VerticalScrollBarVisibility="Auto">
                         <!-- DataGrid for displaying gastos data -->
                         <Custom:DataGrid x:Name="gvGastos"
                               Foreground="Black"
@@ -101,47 +140,57 @@
                     <!-- Buttons -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="10,10,10,20">
                         <Button x:Name="bntAddGasto" Content="+" 
-                    Style="{StaticResource Windows11ButtonStyle}"
-                    Margin="0,0,10,0" FontSize="20" MinWidth="30" Width="50"/>
+                        Style="{StaticResource Windows11ButtonStyle}"
+                        Margin="0,0,10,0" FontSize="20" MinWidth="30" Width="50"
+                        Click="bntAddGasto_Click"/>
+
                         <Button x:Name="btnRemoveGasto" Content="-"
-                    Style="{StaticResource Windows11ButtonStyle}"
-                    Margin="0,0,100,0" MinWidth="30" Height="8" FontSize="20" Width="50"/>
-                        <Button Content="Generar Informe PDF" 
+                        Style="{StaticResource Windows11ButtonStyle}"
+                        Margin="0,0,100,0" FontSize="20" MinWidth="30" Width="50"
+                        Click="btnRemoveGasto_Click"/>
+                        <Button x:Name="btnInformeGasto" Content="Generar Informe PDF" 
                     Click="GenerarInformePDF_Click"
                     Style="{StaticResource Windows11ButtonStyle}"/>
                     </StackPanel>
-                </StackPanel>
+                    <TextBox x:Name="txtCantidad" PlaceholderText="Cantidad" Margin="5" Visibility="Collapsed"/>
+                    <TextBox x:Name="txtDescripcion" PlaceholderText="Descripción" Margin="5" Visibility="Collapsed"/>
+                    <Button x:Name="btnGuardarGasto" Content="Guardar" Click="GuardarGasto_Click" Margin="5"
+                    Style="{StaticResource Windows11ButtonStyle}" Visibility="Collapsed"/>
+                            </StackPanel>
+                
             </PivotItem>
-
-
-
-
-
-
             <!-- Pestaña de Ajustes -->
             <PivotItem HorizontalAlignment="Stretch"
            VerticalAlignment="Stretch"
            HorizontalContentAlignment="Stretch">
-                <PivotItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <SymbolIcon Symbol="Setting" 
+    <PivotItem.Header>
+        <StackPanel Orientation="Horizontal">
+            <SymbolIcon Symbol="Setting" 
                         HorizontalAlignment="Center" 
                         VerticalAlignment="Center"
                         Foreground="Black"/>
-                        <AppBarSeparator/>
-                        <TextBlock Text="Ajustes" 
+            <AppBarSeparator/>
+            <TextBlock Text="Ajustes" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center"
                        Foreground="Black"/>
-                    </StackPanel>
-                </PivotItem.Header>
+        </StackPanel>
+    </PivotItem.Header>
 
-                <!-- Content for ajustes -->
-                <TextBlock Text="Ajustes aquí..." HorizontalAlignment="Center" VerticalAlignment="Center" Width="588" FontSize="72" Foreground="Black"/>
-            </PivotItem>
-
+    <!-- Content for ajustes -->
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <ToggleSwitch Header="Dark Mode" OnContent="On" OffContent="Off" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </StackPanel>
+</PivotItem>
+            
         </Pivot>
-
+        <Button Grid.Row="1" 
+            Content="Cerrar Sesión" 
+            HorizontalAlignment="Right" 
+            VerticalAlignment="Top"
+            Margin="0,0,10,0"
+            Style="{StaticResource Windows11ButtonStyle}"
+            Click="LogoutButton_ClickAsync"/>
         <!-- Botón para generar informe PDF -->
 
     </Grid>
