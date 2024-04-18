@@ -1,5 +1,7 @@
-﻿using System;
+﻿using LittleERP.Persistencia;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +10,8 @@ namespace LittleERP
 {
     public class Gasto
     {
+        private static GestorBaseDatos gestorGastos = new GestorBaseDatos();
+
         public int id { get; set; }
         public double cantidad { get; set; }
         public string descripcion { get; set; }
@@ -16,6 +20,23 @@ namespace LittleERP
 
         public Gasto()
         {
+            // Initialize the gestorBaseDatos instance
+            gestorGastos = new GestorBaseDatos();
+        }
+
+        public ObservableCollection<Gasto> GetGastosFromDatabase(int userId)
+        {
+            return gestorGastos.GetGastosFromDatabase(userId);
+        }
+
+        public void AgregarGasto()
+        {
+            gestorGastos.AgregarGasto(this);
+        }
+
+        public void BorrarGasto(int gastoId)
+        {
+            gestorGastos.BorrarGasto(gastoId);
         }
     }
 

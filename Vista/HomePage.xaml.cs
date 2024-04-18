@@ -1,5 +1,4 @@
-﻿using LittleERP.Persistencia;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -24,6 +23,7 @@ using Syncfusion.Licensing;
 using Syncfusion.Pdf.Grid;
 using System.Threading.Tasks;
 using LittleERP.Vista;
+using LittleERP.Dominio;
 
 
 // La plantilla de elemento Página en blanco está documentada en https://go.microsoft.com/fwlink/?LinkId=234238
@@ -35,29 +35,31 @@ namespace LittleERP
     /// </summary>
     public sealed partial class HomePage : Page
     {
-        private GestorBaseDatos gestorBaseDatos;
-        private int userId;
+        private Usuario user;
 
         public HomePage()
         {
             this.InitializeComponent();
             SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1NBaF5cXmZCe0x3Qnxbf1x0ZFNMYltbQX9PMyBoS35RckVnWHhednZdRmBYVEJy");
-            gestorBaseDatos = new GestorBaseDatos();
-            LoadGastos();
-            LoadIngresos();
+            CarruselPestañas.SelectionChanged += CarruselPestañas_SelectionChanged;
+        }
+
+        private void CarruselPestañas_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            PopulateUserInfo();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
-            if (e.Parameter != null && e.Parameter is int)
+            if (e.Parameter != null && e.Parameter is Usuario)
             {
-                userId = (int)e.Parameter;
-                Debug.WriteLine($"User ID: {userId}");
-                gestorBaseDatos = new GestorBaseDatos();
+                user = (Usuario)e.Parameter;
+                Debug.WriteLine($"User ID: {user.id}");
                 LoadGastos();
                 LoadIngresos();
+                PopulateUserInfo();
             }
             else
             {
@@ -65,9 +67,20 @@ namespace LittleERP
             }
         }
 
+        private void PopulateUserInfo()
+        {
+            if (user != null)
+            {
+                txtNombre.Text = user.Nombre;
+                txtApellido.Text = user.Apellido;
+                txtCorreoElectronico.Text = user.CorreoElectronico;
+            }
+        }
+
         private void LoadGastos()
         {
-            ObservableCollection<Gasto> gastos = gestorBaseDatos.GetGastosFromDatabase(userId);
+            Gasto gastoAux = new Gasto();
+            ObservableCollection<Gasto> gastos = gastoAux.GetGastosFromDatabase(user.id);
             gvGastos.ItemsSource = gastos;
         }
 
@@ -110,6 +123,15 @@ namespace LittleERP
                     return;
                 }
 
+                // Verificar si la cantidad es un número
+                if (!double.TryParse(cantidad, out _))
+                {
+                    // Mostrar un mensaje indicando que la cantidad debe ser un número
+                    MessageDialog invalidQuantityDialog = new MessageDialog("⚠️ La cantidad debe ser un número.", "Cantidad Inválida");
+                    await invalidQuantityDialog.ShowAsync();
+                    return;
+                }
+
                 MessageDialog confirmDialog = new MessageDialog("¿Estás seguro de que quieres agregar este gasto?", "Confirmar Agregar Ingreso");
 
                 // Agregar botones
@@ -121,11 +143,11 @@ namespace LittleERP
                         cantidad = Double.Parse(cantidad),
                         descripcion = descripcion,
                         fecha = DateTime.Now,
-                        idUser = userId
+                        idUser = user.id
                     };
 
                     // Agregar el nuevo ingreso a la base de datos
-                    gestorBaseDatos.AgregarGasto(nuevoGasto);
+                    nuevoGasto.AgregarGasto();
 
                     // Actualizar los datos de los ingresos
                     LoadGastos();
@@ -153,7 +175,8 @@ namespace LittleERP
                 confirmDialog.Commands.Add(new UICommand("Sí", async (command) =>
                 {
                     // Eliminar el gasto seleccionado de la base de datos
-                    gestorBaseDatos.BorrarGasto(selectedGasto.id);
+                    Gasto gastoAux = new Gasto();
+                    gastoAux.BorrarGasto(selectedGasto.id);
 
                     // Actualizar los datos de los gastos
                     LoadGastos();
@@ -171,7 +194,7 @@ namespace LittleERP
             }
         }
 
-        private async void GenerarInformePDF_Click(object sender, RoutedEventArgs e)
+        private async void GenerarInformePDFGasto_Click(object sender, RoutedEventArgs e)
         {
             // Ask the user if they are sure about generating the PDF
             var confirmDialog = new MessageDialog("¿Está seguro de generar el informe en formato PDF?", "Confirmación");
@@ -293,7 +316,8 @@ namespace LittleERP
 
         private void LoadIngresos()
         {
-            Collection<Ingreso> ingresos = gestorBaseDatos.GetIngresosFromDatabase(userId);
+            Ingreso ingresoAux = new Ingreso();
+            Collection<Ingreso> ingresos = ingresoAux.GetIngresosFromDatabase(user.id);
             gvIngresos.ItemsSource = ingresos;
         }
 
@@ -319,6 +343,15 @@ namespace LittleERP
                     return;
                 }
 
+                // Verificar si la cantidad es un número
+                if (!double.TryParse(cantidad, out _))
+                {
+                    // Mostrar un mensaje indicando que la cantidad debe ser un número
+                    MessageDialog invalidQuantityDialog = new MessageDialog("⚠️ La cantidad debe ser un número.", "Cantidad Inválida");
+                    await invalidQuantityDialog.ShowAsync();
+                    return;
+                }
+
                 MessageDialog confirmDialog = new MessageDialog("¿Estás seguro de que quieres agregar este ingreso?", "Confirmar Agregar Ingreso");
 
                 // Agregar botones
@@ -330,11 +363,11 @@ namespace LittleERP
                         cantidad = Double.Parse(cantidad),
                         descripcion = descripcion,
                         fecha = DateTime.Now,
-                        idUser = userId
+                        idUser = user.id
                     };
 
                     // Agregar el nuevo ingreso a la base de datos
-                    gestorBaseDatos.AgregarIngreso(nuevoIngreso);
+                    nuevoIngreso.AgregarIngreso();
 
                     // Actualizar los datos de los ingresos
                     LoadIngresos();
@@ -362,7 +395,8 @@ namespace LittleERP
                 confirmDialog.Commands.Add(new UICommand("Sí", async (command) =>
                 {
                     // Eliminar el ingreso seleccionado de la base de datos
-                    gestorBaseDatos.BorrarIngreso(selectedIngreso.id);
+                    Ingreso ingresoAux = new Ingreso();
+                    ingresoAux.BorrarIngreso(selectedIngreso.id);
 
                     // Actualizar los datos de los ingresos
                     LoadIngresos();
@@ -498,5 +532,79 @@ namespace LittleERP
             // Show the confirmation dialog
             await confirmDialog.ShowAsync();
         }
+
+        private async void ActualizarUsuario_Click(object sender, RoutedEventArgs e)
+        {
+            // Check if any changes are made
+            if (user != null && (user.Nombre != txtNombre.Text || user.Apellido != txtApellido.Text || user.CorreoElectronico != txtCorreoElectronico.Text || txtContraseña.Password != "" || txtConfirmarContraseña.Password != ""))
+            {
+                // Check if passwords match
+                if (txtContraseña.Password != txtConfirmarContraseña.Password)
+                {
+                    // Show error message if passwords don't match
+                    MessageDialog errorDialog = new MessageDialog("⚠️ Las contraseñas no coinciden.", "Error");
+                    await errorDialog.ShowAsync();
+                    return;
+                }
+
+                // Check if nombre, apellido, and correo electronico are empty
+                if (string.IsNullOrEmpty(txtNombre.Text) || string.IsNullOrEmpty(txtApellido.Text) || string.IsNullOrEmpty(txtCorreoElectronico.Text))
+                {
+                    // Show error message if any of these fields are empty
+                    MessageDialog errorDialog = new MessageDialog("⚠️ El nombre, apellido y correo electrónico son campos obligatorios.", "Error");
+                    await errorDialog.ShowAsync();
+                    return;
+                }
+
+                // Confirmation dialog
+                ContentDialog confirmDialog = new ContentDialog
+                {
+                    Title = "Confirmar cambios",
+                    Content = "¿Estás seguro de que deseas actualizar la información del usuario? La sesión se cerrará",
+                    PrimaryButtonText = "Sí",
+                    CloseButtonText = "No"
+                };
+
+                ContentDialogResult result = await confirmDialog.ShowAsync();
+
+                if (result == ContentDialogResult.Primary)
+                {
+                    // Update user information
+                    user.Nombre = txtNombre.Text;
+                    user.Apellido = txtApellido.Text;
+                    user.CorreoElectronico = txtCorreoElectronico.Text;
+
+                    // Update password if provided
+                    if (!string.IsNullOrEmpty(txtContraseña.Password))
+                    {
+                        user.Contraseña = txtContraseña.Password;
+                    }
+
+                    // Update user information in the database
+                    try
+                    {
+                        user.ActualizarUsuario();
+                        // Show success message
+                        MessageDialog successDialog = new MessageDialog("La información del usuario ha sido actualizada correctamente! ✔️", "Actualización Exitosa");
+                        await successDialog.ShowAsync();
+                        // Navigate to main page (logout)
+                        Frame.Navigate(typeof(MainPage));
+                    }
+                    catch (Exception ex)
+                    {
+                        // Show error message if updating user information fails
+                        MessageDialog errorDialog = new MessageDialog($"⚠️ Error al actualizar la información del usuario: {ex.Message}", "Error");
+                        await errorDialog.ShowAsync();
+                    }
+                }
+            }
+            else
+            {
+                // Show message if no changes are made
+                MessageDialog noChangesDialog = new MessageDialog("⚠️ No se han realizado cambios en la información del usuario.", "Sin cambios");
+                await noChangesDialog.ShowAsync();
+            }
+        }
+
     }
 }

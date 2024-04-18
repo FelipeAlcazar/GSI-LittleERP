@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LittleERP.Dominio;
+using System;
 using System.Collections.ObjectModel;
 using System.Data.SQLite;
 using System.Diagnostics;
@@ -218,22 +219,35 @@ namespace LittleERP.Persistencia
             }
         }
 
-        public bool VerifyLogin(string email, string password)
+        public Usuario VerifyLogin(string email, string password)
         {
-            bool isAuthenticated = false;
+            Usuario user = null;
 
             try
             {
                 connection.Open();
 
-                string query = "SELECT COUNT(*) FROM Usuario WHERE CorreoElectronico = @Email AND Contraseña = @Password";
+                string query = "SELECT * FROM Usuario WHERE CorreoElectronico = @Email AND Contraseña = @Password";
                 using (SQLiteCommand command = new SQLiteCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@Email", email);
                     command.Parameters.AddWithValue("@Password", password);
 
-                    int count = Convert.ToInt32(command.ExecuteScalar());
-                    isAuthenticated = (count > 0);
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            // Create a new Usuario object with the retrieved data
+                            user = new Usuario(
+                                Convert.ToInt32(reader["Id"]), 
+                            reader["Nombre"].ToString(),
+                                reader["Apellido"].ToString(),
+                                reader["CorreoElectronico"].ToString(),
+                                reader["Contraseña"].ToString(),
+                                Convert.ToBoolean(reader["EsAdmin"])
+                            );
+                        }
+                    }
                 }
 
                 connection.Close();
@@ -243,8 +257,9 @@ namespace LittleERP.Persistencia
                 Debug.WriteLine($"Error verifying login: {ex.Message}");
             }
 
-            return isAuthenticated;
+            return user;
         }
+
 
         public int GetUserId(string email, string password)
         {
@@ -302,9 +317,9 @@ namespace LittleERP.Persistencia
             }
         }
 
-        public Collection<Ingreso> GetIngresosFromDatabase(int userId)
+        public ObservableCollection<Ingreso> GetIngresosFromDatabase(int userId)
         {
-            Collection<Ingreso> ingresos = new ObservableCollection<Ingreso>();
+            ObservableCollection<Ingreso> ingresos = new ObservableCollection<Ingreso>();
 
             try
             {
@@ -388,6 +403,47 @@ namespace LittleERP.Persistencia
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error: {ex.Message}");
+            }
+        }
+
+        public void ActualizarUsuario(Usuario user)
+        {
+            try
+            {
+                connection.Open();
+
+                string consulta = "UPDATE Usuario SET Nombre = @nombre, Apellido = @apellido, CorreoElectronico = @correo";
+
+                // Check if password is provided
+                if (!string.IsNullOrWhiteSpace(user.Contraseña))
+                {
+                    consulta += ", Contraseña = @contraseña";
+                }
+
+                consulta += " WHERE Id = @id";
+
+                using (SQLiteCommand comando = new SQLiteCommand(consulta, connection))
+                {
+                    comando.Parameters.AddWithValue("@nombre", user.Nombre);
+                    comando.Parameters.AddWithValue("@apellido", user.Apellido);
+                    comando.Parameters.AddWithValue("@correo", user.CorreoElectronico);
+
+                    // Add password parameter if provided
+                    if (!string.IsNullOrWhiteSpace(user.Contraseña))
+                    {
+                        comando.Parameters.AddWithValue("@contraseña", user.Contraseña);
+                    }
+
+                    comando.Parameters.AddWithValue("@id", user.id);
+
+                    comando.ExecuteNonQuery();
+                }
+
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al actualizar el usuario: {ex.Message}");
             }
         }
 

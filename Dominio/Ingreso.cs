@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using LittleERP.Persistencia;
+using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Globalization;
 
 namespace LittleERP
 {
     public class Ingreso
     {
+        private static GestorBaseDatos gestorIngresos = new GestorBaseDatos();
+
         public int id { get; set; }
         public double cantidad { get; set; }
         public string descripcion { get; set; }
@@ -17,7 +18,23 @@ namespace LittleERP
 
         public Ingreso()
         {
+            // Initialize the gestorIngresos instance
+            gestorIngresos = new GestorBaseDatos();
+        }
 
+        public ObservableCollection<Ingreso> GetIngresosFromDatabase(int userId)
+        {
+            return gestorIngresos.GetIngresosFromDatabase(userId);
+        }
+
+        public void AgregarIngreso()
+        {
+            gestorIngresos.AgregarIngreso(this);
+        }
+
+        public void BorrarIngreso(int ingresoId)
+        {
+            gestorIngresos.BorrarIngreso(ingresoId);
         }
     }
 }
