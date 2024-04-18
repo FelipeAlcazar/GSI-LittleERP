@@ -23,6 +23,7 @@ using Syncfusion.Drawing;
 using Syncfusion.Licensing;
 using Syncfusion.Pdf.Grid;
 using System.Threading.Tasks;
+using LittleERP.Vista;
 
 
 // La plantilla de elemento Página en blanco está documentada en https://go.microsoft.com/fwlink/?LinkId=234238
@@ -87,82 +88,56 @@ namespace LittleERP
             await confirmDialog.ShowAsync();
         }
 
-        private void bntAddGasto_Click(object sender, RoutedEventArgs e)
+        private async void bntAddGasto_Click(object sender, RoutedEventArgs e)
         {
-            // Toggle the visibility of the bottom panel for adding gasto
-            if (txtCantidad.Visibility == Visibility.Collapsed)
-            {
-                txtCantidad.Visibility = Visibility.Visible;
-                txtDescripcion.Visibility = Visibility.Visible;
-                btnGuardarGasto.Visibility = Visibility.Visible; // Add this line to show the "Guardar" button
-            }
-            else
-            {
-                txtCantidad.Visibility = Visibility.Collapsed;
-                txtDescripcion.Visibility = Visibility.Collapsed;
-                btnGuardarGasto.Visibility = Visibility.Collapsed; // Add this line to hide the "Guardar" button
-            }
-        }
+            var dialog = new AgregarTransaccionDialog();
+            var result = await dialog.ShowAsync();
 
-        private async void GuardarGasto_Click(object sender, RoutedEventArgs e)
-        {
-            // Verificar que los campos no estén vacíos
-            if (string.IsNullOrWhiteSpace(txtCantidad.Text) || string.IsNullOrWhiteSpace(txtDescripcion.Text))
+            if (result == ContentDialogResult.Primary)
             {
-                // Mostrar un mensaje indicando que los campos no pueden estar vacíos
-                MessageDialog emptyFieldsDialog = new MessageDialog("⚠️ Por favor, asegúrate de completar todos los campos.", "Campos Vacíos");
-                await emptyFieldsDialog.ShowAsync();
-                return;
-            }
+                // Aquí puedes manejar la lógica para guardar el ingreso con la cantidad y descripción proporcionadas
+                string cantidad = dialog.Cantidad;
+                string descripcion = dialog.Descripcion;
+                //Printea la cantidad y la descripción
+                Debug.WriteLine($"Cantidad: {cantidad}, Descripción: {descripcion}");
 
-            // Obtener los valores de entrada
-            double cantidad;
-            if (!double.TryParse(txtCantidad.Text, out cantidad))
-            {
-                // Mostrar un mensaje si la cantidad ingresada no es válida
-                MessageDialog invalidAmountDialog = new MessageDialog("⚠️ Por favor, ingresa una cantidad válida.", "Cantidad Inválida");
-                await invalidAmountDialog.ShowAsync();
-                return;
-            }
-
-            string descripcion = txtDescripcion.Text;
-
-            // Solicitar confirmación para agregar el gasto
-            MessageDialog confirmDialog = new MessageDialog("¿Estás seguro de que quieres agregar este gasto?", "Confirmar Agregar Gasto");
-
-            // Agregar botones
-            confirmDialog.Commands.Add(new UICommand("Sí", async (command) =>
-            {
-                // Crear un nuevo objeto Gasto
-                Gasto nuevoGasto = new Gasto
+                // Verificar que los campos no estén vacíos
+                if (string.IsNullOrWhiteSpace(cantidad) || string.IsNullOrWhiteSpace(descripcion))
                 {
-                    cantidad = cantidad,
-                    descripcion = descripcion,
-                    fecha = DateTime.Now,
-                    idUser = userId
-                };
+                    // Mostrar un mensaje indicando que los campos no pueden estar vacíos
+                    MessageDialog emptyFieldsDialog = new MessageDialog("⚠️ Por favor, asegúrate de completar todos los campos.", "Campos Vacíos");
+                    await emptyFieldsDialog.ShowAsync();
+                    return;
+                }
 
-                // Agregar el nuevo gasto a la base de datos
-                gestorBaseDatos.AgregarGasto(nuevoGasto);
+                MessageDialog confirmDialog = new MessageDialog("¿Estás seguro de que quieres agregar este gasto?", "Confirmar Agregar Ingreso");
 
-                // Actualizar los datos de los gastos
-                LoadGastos();
+                // Agregar botones
+                confirmDialog.Commands.Add(new UICommand("Sí", async (command) =>
+                {
+                    // Crear un nuevo objeto Ingreso
+                    Gasto nuevoGasto = new Gasto
+                    {
+                        cantidad = Double.Parse(cantidad),
+                        descripcion = descripcion,
+                        fecha = DateTime.Now,
+                        idUser = userId
+                    };
 
-                // Ocultar el panel inferior
-                txtCantidad.Visibility = Visibility.Collapsed;
-                txtDescripcion.Visibility = Visibility.Collapsed;
-                btnGuardarGasto.Visibility = Visibility.Collapsed;
+                    // Agregar el nuevo ingreso a la base de datos
+                    gestorBaseDatos.AgregarGasto(nuevoGasto);
 
-                // Limpiar los campos de entrada
-                txtCantidad.Text = "";
-                txtDescripcion.Text = "";
-            }));
-            confirmDialog.Commands.Add(new UICommand("No"));
+                    // Actualizar los datos de los ingresos
+                    LoadGastos();
+                }));
+                confirmDialog.Commands.Add(new UICommand("No"));
 
-            // Mostrar el cuadro de diálogo de confirmación
-            await confirmDialog.ShowAsync();
+                // Mostrar el cuadro de diálogo de confirmación
+                await confirmDialog.ShowAsync();
+
+
+            }
         }
-
 
         private async void btnRemoveGasto_Click(object sender, RoutedEventArgs e)
         {
@@ -318,84 +293,59 @@ namespace LittleERP
 
         private void LoadIngresos()
         {
-            ObservableCollection<Ingreso> ingresos = gestorBaseDatos.GetIngresosFromDatabase(userId);
+            Collection<Ingreso> ingresos = gestorBaseDatos.GetIngresosFromDatabase(userId);
             gvIngresos.ItemsSource = ingresos;
         }
 
-        private void bntAddIngreso_Click(object sender, RoutedEventArgs e)
+        private async void bntAddIngreso_Click(object sender, RoutedEventArgs e)
         {
-            // Toggle the visibility of the bottom panel for adding ingreso
-            if (txtCantidadIngreso.Visibility == Visibility.Collapsed)
-            {
-                txtCantidadIngreso.Visibility = Visibility.Visible;
-                txtDescripcionIngreso.Visibility = Visibility.Visible;
-                btnGuardarIngreso.Visibility = Visibility.Visible; // Add this line to show the "Guardar" button
-            }
-            else
-            {
-                txtCantidadIngreso.Visibility = Visibility.Collapsed;
-                txtDescripcionIngreso.Visibility = Visibility.Collapsed;
-                btnGuardarIngreso.Visibility = Visibility.Collapsed; // Add this line to hide the "Guardar" button
-            }
-        }
+            var dialog = new AgregarTransaccionDialog();
+            var result = await dialog.ShowAsync();
 
-        private async void GuardarIngreso_Click(object sender, RoutedEventArgs e)
-        {
-            // Verificar que los campos no estén vacíos
-            if (string.IsNullOrWhiteSpace(txtCantidadIngreso.Text) || string.IsNullOrWhiteSpace(txtDescripcionIngreso.Text))
+            if (result == ContentDialogResult.Primary)
             {
-                // Mostrar un mensaje indicando que los campos no pueden estar vacíos
-                MessageDialog emptyFieldsDialog = new MessageDialog("⚠️ Por favor, asegúrate de completar todos los campos.", "Campos Vacíos");
-                await emptyFieldsDialog.ShowAsync();
-                return;
-            }
+                // Aquí puedes manejar la lógica para guardar el ingreso con la cantidad y descripción proporcionadas
+                string cantidad = dialog.Cantidad;
+                string descripcion = dialog.Descripcion;
+                //Printea la cantidad y la descripción
+                Debug.WriteLine($"Cantidad: {cantidad}, Descripción: {descripcion}");
 
-            // Obtener los valores de entrada
-            double cantidad;
-            if (!double.TryParse(txtCantidadIngreso.Text, out cantidad))
-            {
-                // Mostrar un mensaje si la cantidad ingresada no es válida
-                MessageDialog invalidAmountDialog = new MessageDialog("⚠️ Por favor, ingresa una cantidad válida.", "Cantidad Inválida");
-                await invalidAmountDialog.ShowAsync();
-                return;
-            }
-
-            string descripcion = txtDescripcionIngreso.Text;
-
-            // Solicitar confirmación para agregar el ingreso
-            MessageDialog confirmDialog = new MessageDialog("¿Estás seguro de que quieres agregar este ingreso?", "Confirmar Agregar Ingreso");
-
-            // Agregar botones
-            confirmDialog.Commands.Add(new UICommand("Sí", async (command) =>
-            {
-                // Crear un nuevo objeto Ingreso
-                Ingreso nuevoIngreso = new Ingreso
+                // Verificar que los campos no estén vacíos
+                if (string.IsNullOrWhiteSpace(cantidad) || string.IsNullOrWhiteSpace(descripcion))
                 {
-                    cantidad = cantidad,
-                    descripcion = descripcion,
-                    fecha = DateTime.Now,
-                    idUser = userId
-                };
+                    // Mostrar un mensaje indicando que los campos no pueden estar vacíos
+                    MessageDialog emptyFieldsDialog = new MessageDialog("⚠️ Por favor, asegúrate de completar todos los campos.", "Campos Vacíos");
+                    await emptyFieldsDialog.ShowAsync();
+                    return;
+                }
 
-                // Agregar el nuevo ingreso a la base de datos
-                gestorBaseDatos.AgregarIngreso(nuevoIngreso);
+                MessageDialog confirmDialog = new MessageDialog("¿Estás seguro de que quieres agregar este ingreso?", "Confirmar Agregar Ingreso");
 
-                // Actualizar los datos de los ingresos
-                LoadIngresos();
+                // Agregar botones
+                confirmDialog.Commands.Add(new UICommand("Sí", async (command) =>
+                {
+                    // Crear un nuevo objeto Ingreso
+                    Ingreso nuevoIngreso = new Ingreso
+                    {
+                        cantidad = Double.Parse(cantidad),
+                        descripcion = descripcion,
+                        fecha = DateTime.Now,
+                        idUser = userId
+                    };
 
-                // Ocultar el panel inferior
-                txtCantidadIngreso.Visibility = Visibility.Collapsed;
-                txtDescripcionIngreso.Visibility = Visibility.Collapsed;
-                btnGuardarIngreso.Visibility = Visibility.Collapsed;
+                    // Agregar el nuevo ingreso a la base de datos
+                    gestorBaseDatos.AgregarIngreso(nuevoIngreso);
 
-                // Limpiar los campos de entrada
-                txtCantidadIngreso.Text = "";
-                txtDescripcionIngreso.Text = "";
-            }));
-            confirmDialog.Commands.Add(new UICommand("No"));
+                    // Actualizar los datos de los ingresos
+                    LoadIngresos();
+                }));
+                confirmDialog.Commands.Add(new UICommand("No"));
 
-            // Mostrar el cuadro de diálogo de confirmación
-            await confirmDialog.ShowAsync();
+                // Mostrar el cuadro de diálogo de confirmación
+                await confirmDialog.ShowAsync();
+
+
+            }
         }
 
         private async void btnRemoveIngreso_Click(object sender, RoutedEventArgs e)

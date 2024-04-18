@@ -4,7 +4,6 @@ using Windows.System;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Popups;
 using System;
 
 namespace LittleERP
@@ -16,6 +15,7 @@ namespace LittleERP
         {
             InitializeComponent();
             gestorBaseDatos=new GestorBaseDatos();
+            Debug.WriteLine(DateTime.Now);
         }
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)

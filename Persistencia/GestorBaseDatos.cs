@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Data.SQLite;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using Windows.Storage;
 
@@ -17,6 +18,7 @@ namespace LittleERP.Persistencia
 
             // Get the local folder for the current app
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+            Debug.WriteLine($"Local folder: {localFolder.Path}");
 
             // Specify the path to the database file within the local folder
             string databaseFileName = "database.db";
@@ -153,7 +155,7 @@ namespace LittleERP.Persistencia
                                 id = Convert.ToInt32(lector["id"]),
                                 cantidad = Convert.ToDouble(lector["cantidad"]),
                                 descripcion = Convert.ToString(lector["descripcion"]),
-                                fecha = DateTime.Parse(lector["fecha"].ToString())
+                                fecha = DateTime.ParseExact(lector["fecha"].ToString(), "dd/MM/yyyy", CultureInfo.InvariantCulture)
                             });
                         }
                     }
@@ -300,9 +302,9 @@ namespace LittleERP.Persistencia
             }
         }
 
-        public ObservableCollection<Ingreso> GetIngresosFromDatabase(int userId)
+        public Collection<Ingreso> GetIngresosFromDatabase(int userId)
         {
-            ObservableCollection<Ingreso> ingresos = new ObservableCollection<Ingreso>();
+            Collection<Ingreso> ingresos = new ObservableCollection<Ingreso>();
 
             try
             {
@@ -319,13 +321,14 @@ namespace LittleERP.Persistencia
                     {
                         while (lector.Read())
                         {
+                            Debug.WriteLine($"Leer ingreso: {lector["fecha"].ToString()}");
                             ingresos.Add(new Ingreso
                             {
                                 id = Convert.ToInt32(lector["id"]),
                                 cantidad = Convert.ToDouble(lector["cantidad"]),
                                 descripcion = Convert.ToString(lector["descripcion"]),
-                                fecha = DateTime.Parse(lector["fecha"].ToString())
-                            });
+                                fecha = DateTime.ParseExact(lector["fecha"].ToString(), "dd/MM/yyyy", CultureInfo.InvariantCulture)
+                        });
                         }
                     }
                 }
@@ -352,6 +355,7 @@ namespace LittleERP.Persistencia
                 {
                     comando.Parameters.AddWithValue("@cantidad", ingreso.cantidad);
                     comando.Parameters.AddWithValue("@descripcion", ingreso.descripcion);
+                    Debug.WriteLine($"Fecha: {ingreso.fecha.ToString("dd/MM/yyyy")}");
                     comando.Parameters.AddWithValue("@fecha", ingreso.fecha.ToString("dd/MM/yyyy"));
                     comando.Parameters.AddWithValue("@usuarioId", ingreso.idUser);
 

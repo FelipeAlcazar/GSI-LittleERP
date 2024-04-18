@@ -16,7 +16,6 @@ namespace LittleERP
 
         public Gasto()
         {
-            fecha = DateTime.Today; 
         }
     }
 
