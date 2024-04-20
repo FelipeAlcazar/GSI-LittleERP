@@ -4,7 +4,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:Custom="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:syncfusion="using:Syncfusion.UI.Xaml.Charts"
     xmlns:charting="using:WinRTXamlToolkit.Controls.DataVisualization.Charting"
     x:Class="LittleERP.HomePage"
     mc:Ignorable="d">
@@ -48,6 +47,7 @@
                     </Grid.RowDefinitions>
                     <charting:Chart x:Name="chartIngresos" Grid.Column="0" Grid.Row="0"/>
                     <charting:Chart x:Name="chartGastos" Grid.Column="1" Grid.Row="0"/>
+                    <charting:Chart x:Name="chartBalance" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" Width="500"/>
                 </Grid>
             </PivotItem>
 

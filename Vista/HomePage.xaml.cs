@@ -5,7 +5,6 @@ using Syncfusion.Licensing;
 using Syncfusion.Pdf;
 using Syncfusion.Pdf.Graphics;
 using Syncfusion.Pdf.Grid;
-//using Syncfusion.UI.Xaml.Charts;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -28,12 +27,14 @@ namespace LittleERP
     /// <summary>
     /// Una página vacía que se puede usar de forma independiente o a la que se puede navegar dentro de un objeto Frame.
     /// </summary>
-
-
-
     public sealed partial class HomePage : Page
     {
         private Usuario user;
+        public class Total
+        {
+            public string categoria { get; set; }
+            public double cantidad { get; set; }
+        }
 
         public HomePage()
         {
@@ -64,6 +65,33 @@ namespace LittleERP
                 ObservableCollection<Gasto> gastos = LoadGastos();
                 CargarPieChart<Gasto>(chartGastos, "Gastos", gastos);
                 gvGastos.ItemsSource = gastos;
+                //Cargar Totales
+                ObservableCollection<Total> totales = ObtenerTotales(ingresos, gastos);
+                chartBalance.Title = "Balance";
+                chartBalance.TitleStyle = new Style(typeof(Title))
+                {
+                    Setters =
+                    {
+                        new Setter(Title.ForegroundProperty, new SolidColorBrush(Colors.Black)),
+                        new Setter(Title.FontSizeProperty, 30)
+                    }
+                };
+                chartBalance.Foreground = new SolidColorBrush(Colors.Black);
+                ColumnSeries balance = new ColumnSeries()
+                {
+                    ItemsSource = totales,
+                    DependentValuePath = "cantidad",
+                    IndependentValuePath = "categoria",
+                    IsSelectionEnabled = true,
+                };
+                balance.LegendItemStyle = new Style(typeof(LegendItem))
+                {
+                    Setters =
+                    {
+                        new Setter(LegendItem.VisibilityProperty, Visibility.Collapsed)
+                    }
+                };
+                chartBalance.Series.Add(balance);
                 PopulateUserInfo();
             }
             else
@@ -101,6 +129,27 @@ namespace LittleERP
             chart.Series.Add(ingresos);
         }
 
+        private ObservableCollection<Total> ObtenerTotales(ObservableCollection<Ingreso> lstIngresos, ObservableCollection<Gasto> lstGastos) 
+        {             
+            double totalIngresos = 0;
+            double totalGastos = 0;
+        
+            foreach (Ingreso ingreso in lstIngresos)
+            {
+                totalIngresos += ingreso.cantidad;
+            }
+
+            foreach (Gasto gasto in lstGastos)
+            {
+                totalGastos += gasto.cantidad;
+            }
+
+            ObservableCollection<Total> lstTotales = new ObservableCollection<Total>();
+            lstTotales.Add(new Total { categoria = "Ingresos", cantidad = totalIngresos });
+            lstTotales.Add(new Total { categoria = "Gastos", cantidad = totalGastos });
+            return lstTotales;
+
+        }
 
         private void PopulateUserInfo()
         {
