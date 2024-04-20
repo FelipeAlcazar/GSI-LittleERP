@@ -5,7 +5,7 @@ using Syncfusion.Licensing;
 using Syncfusion.Pdf;
 using Syncfusion.Pdf.Graphics;
 using Syncfusion.Pdf.Grid;
-using Syncfusion.UI.Xaml.Charts;
+//using Syncfusion.UI.Xaml.Charts;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -17,6 +17,8 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using WinRTXamlToolkit.Controls.DataVisualization;
+using WinRTXamlToolkit.Controls.DataVisualization.Charting;
 
 
 // La plantilla de elemento Página en blanco está documentada en https://go.microsoft.com/fwlink/?LinkId=234238
@@ -54,8 +56,8 @@ namespace LittleERP
             {
                 user = (Usuario)e.Parameter;
                 Debug.WriteLine($"User ID: {user.id}");
-                ObservableCollection<Ingreso> ingresos = LoadIngresos();
                 //Cargar Ingresos
+                ObservableCollection<Ingreso> ingresos = LoadIngresos();
                 CargarPieChart<Ingreso>(chartIngresos, "Ingresos", ingresos);
                 gvIngresos.ItemsSource = ingresos;
                 //Cargar Gastos
@@ -70,30 +72,33 @@ namespace LittleERP
             }
         }
 
-        private void CargarPieChart<T>(SfChart chart, string nombreHeader, ObservableCollection<T> lista)
+        private void CargarPieChart<T>(Chart chart, string nombreHeader, ObservableCollection<T> lista)
         {
-            chart.Header = new TextBlock()
+            chart.Title = nombreHeader;
+            chart.TitleStyle = new Style(typeof(Title))
             {
-                Text = nombreHeader,
-                FontSize = 30,
-                Foreground = new SolidColorBrush(Windows.UI.Colors.Black)
+                Setters =
+                    {
+                        new Setter(Title.ForegroundProperty, new SolidColorBrush(Colors.Black)),
+                        new Setter(Title.FontSizeProperty, 30)
+                    }
             };
-            chart.Legend = new ChartLegend()
+            chart.LegendStyle = new Style(typeof(Legend))
             {
-                Visibility = Visibility.Visible,
-                Foreground = new SolidColorBrush(Windows.UI.Colors.Black),
-                FontSize = 20
+                Setters =
+                    {
+                        new Setter(Legend.ForegroundProperty, new SolidColorBrush(Colors.Black)),
+                        new Setter(Legend.FontSizeProperty, 15)
+                    }
             };
-            PieSeries series = new PieSeries()
+            PieSeries ingresos = new PieSeries()
             {
-
                 ItemsSource = lista,
-                XBindingPath = "descripcion",
-                YBindingPath = "cantidad",
-                StartAngle = 0,
-                EndAngle = 360
+                DependentValuePath = "cantidad",
+                IndependentValuePath = "descripcion",
+                IsSelectionEnabled = true,
             };
-            chart.Series.Add(series);
+            chart.Series.Add(ingresos);
         }
 
 
