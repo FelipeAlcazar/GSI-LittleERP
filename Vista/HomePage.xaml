@@ -4,6 +4,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:Custom="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:syncfusion="using:Syncfusion.UI.Xaml.Charts"
     x:Class="LittleERP.HomePage"
     mc:Ignorable="d">
 
@@ -35,9 +36,19 @@
                                Foreground="Black"/>
                     </StackPanel>
                 </PivotItem.Header>
-                <!-- Aquí puedes colocar el contenido para mostrar los gráficos -->
-                <!-- Por ejemplo, podrías utilizar un control de gráfico aquí -->
-                <TextBlock Text="Gráficos aquí..." HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <syncfusion:SfChart x:Name="chartIngresos" Grid.Column="0"/>
+                    <syncfusion:SfChart x:Name="chartGastos" Grid.Column="1"/>
+                    <syncfusion:SfChart x:Name="chartBalance" Grid.Row="1" Grid.ColumnSpan="2"/>
+                </Grid>
             </PivotItem>
 
             <!-- Pestaña de Ingresos -->

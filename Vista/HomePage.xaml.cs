@@ -1,29 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using LittleERP.Dominio;
+using LittleERP.Vista;
+using Syncfusion.Drawing;
+using Syncfusion.Licensing;
+using Syncfusion.Pdf;
+using Syncfusion.Pdf.Graphics;
+using Syncfusion.Pdf.Grid;
+using Syncfusion.UI.Xaml.Charts;
+using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using Windows.Storage;
+using Windows.UI;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Windows.UI.Popups;
-using Syncfusion.Pdf;
-using Syncfusion.Pdf.Graphics;
-using Windows.Storage;
-using Syncfusion.Drawing;
-using Syncfusion.Licensing;
-using Syncfusion.Pdf.Grid;
-using System.Threading.Tasks;
-using LittleERP.Vista;
-using LittleERP.Dominio;
 
 
 // La plantilla de elemento Página en blanco está documentada en https://go.microsoft.com/fwlink/?LinkId=234238
@@ -33,6 +26,9 @@ namespace LittleERP
     /// <summary>
     /// Una página vacía que se puede usar de forma independiente o a la que se puede navegar dentro de un objeto Frame.
     /// </summary>
+
+
+
     public sealed partial class HomePage : Page
     {
         private Usuario user;
@@ -40,8 +36,9 @@ namespace LittleERP
         public HomePage()
         {
             this.InitializeComponent();
-            SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1NBaF5cXmZCe0x3Qnxbf1x0ZFNMYltbQX9PMyBoS35RckVnWHhednZdRmBYVEJy");
+            SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1NBaF5cXmZCekx0Qnxbf1x0ZFJMZF1bQHNPMyBoS35RckVnW39ed3BUQmVZVkV+");
             CarruselPestañas.SelectionChanged += CarruselPestañas_SelectionChanged;
+
         }
 
         private void CarruselPestañas_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -57,8 +54,14 @@ namespace LittleERP
             {
                 user = (Usuario)e.Parameter;
                 Debug.WriteLine($"User ID: {user.id}");
-                LoadGastos();
-                LoadIngresos();
+                ObservableCollection<Ingreso> ingresos = LoadIngresos();
+                //Cargar Ingresos
+                CargarPieChart<Ingreso>(chartIngresos, "Ingresos", ingresos);
+                gvIngresos.ItemsSource = ingresos;
+                //Cargar Gastos
+                ObservableCollection<Gasto> gastos = LoadGastos();
+                CargarPieChart<Gasto>(chartGastos, "Gastos", gastos);
+                gvGastos.ItemsSource = gastos;
                 PopulateUserInfo();
             }
             else
@@ -66,6 +69,33 @@ namespace LittleERP
                 // Handle invalid parameter
             }
         }
+
+        private void CargarPieChart<T>(SfChart chart, string nombreHeader, ObservableCollection<T> lista)
+        {
+            chart.Header = new TextBlock()
+            {
+                Text = nombreHeader,
+                FontSize = 30,
+                Foreground = new SolidColorBrush(Windows.UI.Colors.Black)
+            };
+            chart.Legend = new ChartLegend()
+            {
+                Visibility = Visibility.Visible,
+                Foreground = new SolidColorBrush(Windows.UI.Colors.Black),
+                FontSize = 20
+            };
+            PieSeries series = new PieSeries()
+            {
+
+                ItemsSource = lista,
+                XBindingPath = "descripcion",
+                YBindingPath = "cantidad",
+                StartAngle = 0,
+                EndAngle = 360
+            };
+            chart.Series.Add(series);
+        }
+
 
         private void PopulateUserInfo()
         {
@@ -77,11 +107,11 @@ namespace LittleERP
             }
         }
 
-        private void LoadGastos()
+        private ObservableCollection<Gasto> LoadGastos()
         {
             Gasto gastoAux = new Gasto();
             ObservableCollection<Gasto> gastos = gastoAux.GetGastosFromDatabase(user.id);
-            gvGastos.ItemsSource = gastos;
+            return gastos;
         }
 
         private async void LogoutButton_ClickAsync(object sender, RoutedEventArgs e)
@@ -314,11 +344,11 @@ namespace LittleERP
             await confirmDialog.ShowAsync();
         }
 
-        private void LoadIngresos()
+        private ObservableCollection<Ingreso> LoadIngresos()
         {
             Ingreso ingresoAux = new Ingreso();
-            Collection<Ingreso> ingresos = ingresoAux.GetIngresosFromDatabase(user.id);
-            gvIngresos.ItemsSource = ingresos;
+            ObservableCollection<Ingreso> ingresos = ingresoAux.GetIngresosFromDatabase(user.id);
+            return ingresos;
         }
 
         private async void bntAddIngreso_Click(object sender, RoutedEventArgs e)

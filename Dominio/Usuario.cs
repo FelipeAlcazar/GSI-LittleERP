@@ -1,11 +1,10 @@
-﻿using System;
-using LittleERP.Persistencia;
+﻿using LittleERP.Persistencia;
 
 namespace LittleERP.Dominio
 {
     public class Usuario
     {
-        private static GestorBaseDatos gestorUsuario= new GestorBaseDatos();
+        private static GestorBaseDatos gestorUsuario = new GestorBaseDatos();
 
         public int id { get; set; }
         public string Nombre { get; set; }

@@ -1,8 +1,6 @@
 ﻿using LittleERP.Persistencia;
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Globalization;
 
 namespace LittleERP
 {

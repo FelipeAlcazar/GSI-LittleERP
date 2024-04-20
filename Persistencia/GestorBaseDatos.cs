@@ -239,7 +239,7 @@ namespace LittleERP.Persistencia
                         {
                             // Create a new Usuario object with the retrieved data
                             user = new Usuario(
-                                Convert.ToInt32(reader["Id"]), 
+                                Convert.ToInt32(reader["Id"]),
                             reader["Nombre"].ToString(),
                                 reader["Apellido"].ToString(),
                                 reader["CorreoElectronico"].ToString(),
@@ -343,7 +343,7 @@ namespace LittleERP.Persistencia
                                 cantidad = Convert.ToDouble(lector["cantidad"]),
                                 descripcion = Convert.ToString(lector["descripcion"]),
                                 fecha = DateTime.ParseExact(lector["fecha"].ToString(), "dd/MM/yyyy", CultureInfo.InvariantCulture)
-                        });
+                            });
                         }
                     }
                 }

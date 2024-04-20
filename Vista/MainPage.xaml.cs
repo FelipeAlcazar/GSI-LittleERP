@@ -1,10 +1,9 @@
-﻿using LittleERP.Persistencia;
-using LittleERP.Dominio;
+﻿using LittleERP.Dominio;
+using System;
 using System.Diagnostics;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using System;
 
 namespace LittleERP
 {
