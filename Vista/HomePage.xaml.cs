@@ -165,6 +165,7 @@ namespace LittleERP
         {
             Gasto gastoAux = new Gasto();
             ObservableCollection<Gasto> gastos = gastoAux.GetGastosFromDatabase(user.id);
+            gvGastos.ItemsSource = gastos;
             return gastos;
         }
 
@@ -192,36 +193,29 @@ namespace LittleERP
 
             if (result == ContentDialogResult.Primary)
             {
-                // Aquí puedes manejar la lógica para guardar el ingreso con la cantidad y descripción proporcionadas
                 string cantidad = dialog.Cantidad;
                 string descripcion = dialog.Descripcion;
-                //Printea la cantidad y la descripción
+
                 Debug.WriteLine($"Cantidad: {cantidad}, Descripción: {descripcion}");
 
-                // Verificar que los campos no estén vacíos
                 if (string.IsNullOrWhiteSpace(cantidad) || string.IsNullOrWhiteSpace(descripcion))
                 {
-                    // Mostrar un mensaje indicando que los campos no pueden estar vacíos
                     MessageDialog emptyFieldsDialog = new MessageDialog("⚠️ Por favor, asegúrate de completar todos los campos.", "Campos Vacíos");
                     await emptyFieldsDialog.ShowAsync();
                     return;
                 }
 
-                // Verificar si la cantidad es un número
                 if (!double.TryParse(cantidad, out _))
                 {
-                    // Mostrar un mensaje indicando que la cantidad debe ser un número
                     MessageDialog invalidQuantityDialog = new MessageDialog("⚠️ La cantidad debe ser un número.", "Cantidad Inválida");
                     await invalidQuantityDialog.ShowAsync();
                     return;
                 }
 
-                MessageDialog confirmDialog = new MessageDialog("¿Estás seguro de que quieres agregar este gasto?", "Confirmar Agregar Ingreso");
+                MessageDialog confirmDialog = new MessageDialog("¿Estás seguro de que quieres agregar este gasto?", "Confirmar Agregar Gasto");
 
-                // Agregar botones
                 confirmDialog.Commands.Add(new UICommand("Sí", async (command) =>
                 {
-                    // Crear un nuevo objeto Ingreso
                     Gasto nuevoGasto = new Gasto
                     {
                         cantidad = Double.Parse(cantidad),
@@ -230,49 +224,45 @@ namespace LittleERP
                         idUser = user.id
                     };
 
-                    // Agregar el nuevo ingreso a la base de datos
                     nuevoGasto.AgregarGasto();
 
-                    // Actualizar los datos de los ingresos
-                    LoadGastos();
+                    LoadGastos(); // Update gastos
+
+                    // Update the gastos chart
+                    ObservableCollection<Gasto> gastos = LoadGastos();
+                    CargarPieChart<Gasto>(chartGastos, "Gastos", gastos);
                 }));
                 confirmDialog.Commands.Add(new UICommand("No"));
 
-                // Mostrar el cuadro de diálogo de confirmación
                 await confirmDialog.ShowAsync();
-
-
             }
         }
 
         private async void btnRemoveGasto_Click(object sender, RoutedEventArgs e)
         {
-            // Obtener el gasto seleccionado
             Gasto selectedGasto = gvGastos.SelectedItem as Gasto;
 
             if (selectedGasto != null)
             {
-                // Pedir confirmación
                 MessageDialog confirmDialog = new MessageDialog("¿Estás seguro de que quieres eliminar este gasto?", "Confirmar Eliminación");
 
-                // Agregar botones
                 confirmDialog.Commands.Add(new UICommand("Sí", async (command) =>
                 {
-                    // Eliminar el gasto seleccionado de la base de datos
                     Gasto gastoAux = new Gasto();
                     gastoAux.BorrarGasto(selectedGasto.id);
 
-                    // Actualizar los datos de los gastos
-                    LoadGastos();
+                    LoadGastos(); // Update gastos
+
+                    // Update the gastos chart
+                    ObservableCollection<Gasto> gastos = LoadGastos();
+                    CargarPieChart<Gasto>(chartGastos, "Gastos", gastos);
                 }));
                 confirmDialog.Commands.Add(new UICommand("No"));
 
-                // Mostrar el cuadro de diálogo de confirmación
                 await confirmDialog.ShowAsync();
             }
             else
             {
-                // Mostrar mensaje indicando que no se ha seleccionado ningún gasto
                 MessageDialog noSelectionDialog = new MessageDialog("⚠️ Por favor, selecciona un gasto para eliminar.", "Ningún Gasto Seleccionado");
                 await noSelectionDialog.ShowAsync();
             }
@@ -402,6 +392,7 @@ namespace LittleERP
         {
             Ingreso ingresoAux = new Ingreso();
             ObservableCollection<Ingreso> ingresos = ingresoAux.GetIngresosFromDatabase(user.id);
+            gvIngresos.ItemsSource = ingresos;
             return ingresos;
         }
 
@@ -412,25 +403,20 @@ namespace LittleERP
 
             if (result == ContentDialogResult.Primary)
             {
-                // Aquí puedes manejar la lógica para guardar el ingreso con la cantidad y descripción proporcionadas
                 string cantidad = dialog.Cantidad;
                 string descripcion = dialog.Descripcion;
-                //Printea la cantidad y la descripción
+
                 Debug.WriteLine($"Cantidad: {cantidad}, Descripción: {descripcion}");
 
-                // Verificar que los campos no estén vacíos
                 if (string.IsNullOrWhiteSpace(cantidad) || string.IsNullOrWhiteSpace(descripcion))
                 {
-                    // Mostrar un mensaje indicando que los campos no pueden estar vacíos
                     MessageDialog emptyFieldsDialog = new MessageDialog("⚠️ Por favor, asegúrate de completar todos los campos.", "Campos Vacíos");
                     await emptyFieldsDialog.ShowAsync();
                     return;
                 }
 
-                // Verificar si la cantidad es un número
                 if (!double.TryParse(cantidad, out _))
                 {
-                    // Mostrar un mensaje indicando que la cantidad debe ser un número
                     MessageDialog invalidQuantityDialog = new MessageDialog("⚠️ La cantidad debe ser un número.", "Cantidad Inválida");
                     await invalidQuantityDialog.ShowAsync();
                     return;
@@ -438,10 +424,8 @@ namespace LittleERP
 
                 MessageDialog confirmDialog = new MessageDialog("¿Estás seguro de que quieres agregar este ingreso?", "Confirmar Agregar Ingreso");
 
-                // Agregar botones
                 confirmDialog.Commands.Add(new UICommand("Sí", async (command) =>
                 {
-                    // Crear un nuevo objeto Ingreso
                     Ingreso nuevoIngreso = new Ingreso
                     {
                         cantidad = Double.Parse(cantidad),
@@ -450,53 +434,50 @@ namespace LittleERP
                         idUser = user.id
                     };
 
-                    // Agregar el nuevo ingreso a la base de datos
                     nuevoIngreso.AgregarIngreso();
 
-                    // Actualizar los datos de los ingresos
-                    LoadIngresos();
+                    LoadIngresos(); // Update ingresos
+
+                    // Update the ingresos chart
+                    ObservableCollection<Ingreso> ingresos = LoadIngresos();
+                    CargarPieChart<Ingreso>(chartIngresos, "Ingresos", ingresos);
                 }));
                 confirmDialog.Commands.Add(new UICommand("No"));
 
-                // Mostrar el cuadro de diálogo de confirmación
                 await confirmDialog.ShowAsync();
-
-
             }
         }
 
         private async void btnRemoveIngreso_Click(object sender, RoutedEventArgs e)
         {
-            // Obtener el ingreso seleccionado
             Ingreso selectedIngreso = gvIngresos.SelectedItem as Ingreso;
 
             if (selectedIngreso != null)
             {
-                // Pedir confirmación
                 MessageDialog confirmDialog = new MessageDialog("¿Estás seguro de que quieres eliminar este ingreso?", "Confirmar Eliminación");
 
-                // Agregar botones
                 confirmDialog.Commands.Add(new UICommand("Sí", async (command) =>
                 {
-                    // Eliminar el ingreso seleccionado de la base de datos
                     Ingreso ingresoAux = new Ingreso();
                     ingresoAux.BorrarIngreso(selectedIngreso.id);
 
-                    // Actualizar los datos de los ingresos
-                    LoadIngresos();
+                    LoadIngresos(); // Update ingresos
+
+                    // Update the ingresos chart
+                    ObservableCollection<Ingreso> ingresos = LoadIngresos();
+                    CargarPieChart<Ingreso>(chartIngresos, "Ingresos", ingresos);
                 }));
                 confirmDialog.Commands.Add(new UICommand("No"));
 
-                // Mostrar el cuadro de diálogo de confirmación
                 await confirmDialog.ShowAsync();
             }
             else
             {
-                // Mostrar mensaje indicando que no se ha seleccionado ningún ingreso
                 MessageDialog noSelectionDialog = new MessageDialog("⚠️ Por favor, selecciona un ingreso para eliminar.", "Ningún Ingreso Seleccionado");
                 await noSelectionDialog.ShowAsync();
             }
         }
+
         private async void GenerarInformePDFIngreso_Click(object sender, RoutedEventArgs e)
         {
             // Ask the user if they are sure about generating the PDF
