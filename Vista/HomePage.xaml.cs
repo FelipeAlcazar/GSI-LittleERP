@@ -102,6 +102,7 @@ namespace LittleERP
 
         private void CargarPieChart<T>(Chart chart, string nombreHeader, ObservableCollection<T> lista)
         {
+            chart.Series.Clear();
             chart.Title = nombreHeader;
             chart.TitleStyle = new Style(typeof(Title))
             {
